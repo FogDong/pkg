@@ -42,7 +42,7 @@ func DefaultNewControllerClient(cache cache.Cache, config *rest.Config, options 
 	if err != nil {
 		return nil, fmt.Errorf("failed to get raw client: %w", err)
 	}
-	err = rawClient.Get(context.Background(), client.ObjectKey{Name: "default"}, &corev1.Namespace{})
+	err = rawClient.List(context.Background(), &corev1.NamespaceList{})
 	if err != nil {
 		fmt.Println("================failed to connect to cluster: ", err)
 		return nil, fmt.Errorf("failed to connect to cluster: %w", err)
@@ -87,7 +87,7 @@ func DefaultNewControllerClient(cache cache.Cache, config *rest.Config, options 
 		StatusClient:                 mClient,
 		SubResourceClientConstructor: mClient,
 	}
-	err = dClient.Get(context.Background(), client.ObjectKey{Name: "default"}, &corev1.Namespace{})
+	err = dClient.List(context.Background(), &corev1.NamespaceList{})
 	if err != nil {
 		fmt.Println("================failed to connect to cluster with dclient: ", err)
 		return nil, fmt.Errorf("failed to connect to cluster with dclient: %w", err)

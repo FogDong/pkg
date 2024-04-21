@@ -17,9 +17,11 @@ limitations under the License.
 package client
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
@@ -40,6 +42,11 @@ func DefaultNewControllerClient(cache cache.Cache, config *rest.Config, options 
 	if err != nil {
 		return nil, fmt.Errorf("failed to get raw client: %w", err)
 	}
+	err = rawClient.List(context.Background(), &corev1.NamespaceList{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to list namespaces: %w", err)
+	}
+	fmt.Println("========success to list namespaces========")
 	rawClient = WrapDefaultTimeoutClient(rawClient)
 
 	mClient := &monitorClient{rawClient}

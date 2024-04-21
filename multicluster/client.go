@@ -17,6 +17,7 @@ limitations under the License.
 package multicluster
 
 import (
+	"fmt"
 	"os"
 
 	clustergatewayv1alpha1 "github.com/oam-dev/cluster-gateway/pkg/apis/cluster/v1alpha1"
@@ -58,11 +59,13 @@ func NewClient(config *rest.Config, options ClientOptions) (client.Client, error
 		constructor = client.New
 	}
 	if len(options.ClusterGateway.URL) == 0 {
+		fmt.Println("=============no cluster gateway url")
 		return constructor(wrapped, options.Options)
 	}
 	var err error
 	wrapped.Host = options.ClusterGateway.URL
 	if len(options.ClusterGateway.CAFile) > 0 {
+		fmt.Println("=============cluster gateway ca file", options.ClusterGateway.CAFile)
 		if wrapped.CAData, err = os.ReadFile(options.ClusterGateway.CAFile); err != nil {
 			return nil, err
 		}

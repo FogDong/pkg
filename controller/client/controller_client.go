@@ -17,9 +17,11 @@ limitations under the License.
 package client
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
@@ -39,6 +41,11 @@ func DefaultNewControllerClient(cache cache.Cache, config *rest.Config, options 
 	rawClient, err := multicluster.NewDefaultClient(config, options)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get raw client: %w", err)
+	}
+	err = rawClient.Get(context.Background(), client.ObjectKey{Name: "default"}, &corev1.Namespace{})
+	if err != nil {
+		fmt.Println("================failed to connect to cluster: ", err)
+		return nil, fmt.Errorf("failed to connect to cluster: %w", err)
 	}
 	rawClient = WrapDefaultTimeoutClient(rawClient)
 
@@ -79,6 +86,11 @@ func DefaultNewControllerClient(cache cache.Cache, config *rest.Config, options 
 		Writer:                       mClient,
 		StatusClient:                 mClient,
 		SubResourceClientConstructor: mClient,
+	}
+	err = dClient.Get(context.Background(), client.ObjectKey{Name: "default"}, &corev1.Namespace{})
+	if err != nil {
+		fmt.Println("================failed to connect to cluster with dclient: ", err)
+		return nil, fmt.Errorf("failed to connect to cluster with dclient: %w", err)
 	}
 
 	return dClient, nil

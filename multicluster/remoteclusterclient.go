@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"github.com/jellydator/ttlcache/v3"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/conversion/queryparams"
@@ -66,6 +67,12 @@ func NewRemoteClusterClient(cfg *rest.Config, options client.Options) (client.Cl
 	if err != nil {
 		return nil, err
 	}
+	err = defaultClient.List(context.Background(), &corev1.NamespaceList{})
+	if err != nil {
+		fmt.Println("================default client error: ", err)
+		return nil, fmt.Errorf("default client error: %w", err)
+	}
+	fmt.Println("=============default client connected")
 
 	if options.Scheme == nil {
 		options.Scheme = scheme.Scheme
